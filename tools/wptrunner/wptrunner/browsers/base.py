@@ -344,6 +344,7 @@ class WebDriverBrowser(Browser):
                 raise OSError(
                     "WebDriver executable not found: %s" % self.webdriver_binary)
             raise
+        self.logger.debug(f"WebDriver PID: {self._proc.pid}")
         self._output_handler.after_process_start(self._proc.pid)
 
         try:
