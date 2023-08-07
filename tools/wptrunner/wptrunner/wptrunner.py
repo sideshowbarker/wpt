@@ -4,6 +4,7 @@ import json
 import os
 import signal
 import sys
+import threading
 from collections import defaultdict
 from datetime import datetime, timedelta
 
@@ -481,6 +482,9 @@ def run_tests(config, test_paths, product, **kwargs):
                 if test_status.repeated_runs == 1 and len(test_loader.test_ids) == test_status.skipped:
                     test_status.all_skipped = True
                     break
+
+    for thread in threading.enumerate():
+        logger.debug(f"still alive thread: {thread.name}, daemon: {thread.daemon}")
 
     # Return the evaluation of the runs and the number of repeated iterations that were run.
     return evaluate_runs(test_status, **kwargs), test_status
