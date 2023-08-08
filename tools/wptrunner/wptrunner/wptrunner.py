@@ -483,11 +483,51 @@ def run_tests(config, test_paths, product, **kwargs):
                     test_status.all_skipped = True
                     break
 
+    import psutil
+    current_process = psutil.Process()
+    children = current_process.children(recursive=True)
+    for p in children:
+        logger.debug(f'Subprocess pid {p.pid}, parent {p.ppid()}, name: {p.name()}, cmdline: {p.cmdline()}')
+
+    def on_terminate(proc):
+        logger.debug("process {} terminated with exit code {}".format(proc.pid, proc.returncode))
+
+    logger.debug("terminating tree")
+    kill_proc_tree(os.getpid(), include_parent=False, sig=signal.SIGTERM, timeout=3, on_terminate=on_terminate)
+    logger.debug("killing tree")
+    kill_proc_tree(os.getpid(), include_parent=False, sig=signal.SIGKILL, timeout=10, on_terminate=on_terminate)
+
     for thread in threading.enumerate():
         logger.debug(f"still alive thread: {thread.name}, daemon: {thread.daemon}")
 
     # Return the evaluation of the runs and the number of repeated iterations that were run.
     return evaluate_runs(test_status, **kwargs), test_status
+
+
+import os
+import signal
+
+def kill_proc_tree(pid, sig=signal.SIGTERM, include_parent=True,
+                   timeout=None, on_terminate=None):
+    """Kill a process tree (including grandchildren) with signal
+    "sig" and return a (gone, still_alive) tuple.
+    "on_terminate", if specified, is a callback function which is
+    called as soon as a child terminates.
+    """
+    assert include_parent is False or pid != os.getpid(), "won't kill myself"
+    import psutil
+    parent = psutil.Process(pid)
+    children = parent.children(recursive=True)
+    if include_parent:
+        children.append(parent)
+    for p in children:
+        try:
+            p.send_signal(sig)
+        except psutil.NoSuchProcess:
+            pass
+    gone, alive = psutil.wait_procs(children, timeout=timeout,
+                                    callback=on_terminate)
+    return (gone, alive)
 
 
 def check_stability(**kwargs):
