@@ -801,6 +801,22 @@
          */
         reset_fedcm_cooldown: function(context=null) {
           return window.test_driver_internal.reset_fedcm_cooldown(context);
+        },
+
+        create_virtual_sensor: function(sensor_type, sensor_params={}, context=null) {
+          return window.test_driver_internal.create_virtual_sensor(sensor_type, sensor_params, context);
+        },
+
+        update_virtual_sensor: function(sensor_type, reading, context=null) {
+          return window.test_driver_internal.update_virtual_sensor(sensor_type, reading, context);
+        },
+
+        remove_virtual_sensor: function(sensor_type, context=null) {
+          return window.test_driver_internal.remove_virtual_sensor(sensor_type, context);
+        },
+
+        get_virtual_sensor_information: function(sensor_type, context=null) {
+          return window.test_driver_internal.get_virtual_sensor_information(sensor_type, context);
         }
     };
 
@@ -953,6 +969,22 @@
 
         async reset_fedcm_cooldown(context=null) {
             throw new Error("reset_fedcm_cooldown() is not implemented by testdriver-vendor.js");
+        },
+
+        async create_virtual_sensor(sensor_type, sensor_params={}, context=null) {
+            throw new Error("create_virtual_sensor() is not implemented by testdriver-vendor.js");
+        },
+
+        async update_virtual_sensor(sensor_type, reading, context=null) {
+            throw new Error("update_virtual_sensor() is not implemented by testdriver-vendor.js");
+        },
+
+        async remove_virtual_sensor(sensor_type, context=null) {
+            throw new Error("remove_virtual_sensor() is not implemented by testdriver-vendor.js");
+        },
+
+        async get_virtual_sensor_information(sensor_type, context=null) {
+            throw new Error("get_virtual_sensor_information() is not implemented by testdriver-vendor.js");
         }
     };
 })();
