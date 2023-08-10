@@ -344,6 +344,20 @@ self.GenericSensorTest = (() => {
       this.interceptor_.start();
     }
 
+    // Empty implementation of virtual sensor-related Mojo operations.
+    async createVirtualSensor() {
+      return Promise.reject('createVirtualSensor() is not implemented');
+    }
+    async updateVirtualSensor() {
+      return Promise.reject('updateVirtualSensor() is not implemented');
+    }
+    async removeVirtualSensor() {
+      return Promise.reject('removeVirtualSensor() is not implemented');
+    }
+    async getVirtualSensorInformation() {
+      return Promise.reject('getVirtualSensorInformation() is not implemented');
+    }
+
     // Returns initialized Sensor proxy to the client.
     async getSensor(type) {
       if (this.getSensorShouldFail_.get(type)) {
