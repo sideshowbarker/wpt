@@ -102,3 +102,151 @@ async function cleanup_writable(test, value) {
     }
   });
 }
+
+function createFileHandles(dir, ...fileNames) {
+  return Promise.all(
+      fileNames.map(fileName => dir.getFileHandle(fileName, {create: true})));
+}
+
+// Closes a lock created by one of the create*WithCleanup functions below.
+async function closeLock(lockPromise) {
+  const result = await lockPromise;
+  if (result?.close) {
+    await result.close();
+  }
+}
+
+function cleanupLockPromise(t, lockPromise) {
+  return cleanup(t, lockPromise, () => closeLock(lockPromise));
+}
+
+function createWritableWithCleanup(t, fileHandle) {
+  return cleanupLockPromise(t, fileHandle.createWritable());
+}
+
+function createSAHWithCleanup(t, fileHandle, sahOptions) {
+  return cleanupLockPromise(t, fileHandle.createSyncAccessHandle(sahOptions));
+}
+
+// Returns createSAHWithCleanup bound with sahOptions.
+function createSAHWithCleanupFactory(sahOptions) {
+  return (t, fileHandle) => createSAHWithCleanup(t, fileHandle, sahOptions);
+}
+
+function createMoveWithCleanup(
+    t, fileHandle, fileName = 'unique-file-name.test') {
+  return cleanupLockPromise(t, fileHandle.move(fileName));
+}
+
+function createRemoveWithCleanup(t, fileHandle) {
+  return cleanupLockPromise(t, fileHandle.remove({recursive: true}));
+}
+
+// For each key in `testFuncs` if there is a matching key in `testDescs`,
+// creates a directory_test passing the respective key's value for the func and
+// description arguments. If there is not a matching key in `testDescs` the test
+// is not created.
+function selectDirectoryTests(testDescs, testFuncs) {
+  for (const testDesc in testDescs) {
+    if (!testFuncs.hasOwnProperty(testDesc)) {
+      throw new Error(
+          'Passed a test description in testDescs that wasn\'t in testFuncs.');
+    }
+    directory_test(testFuncs[testDesc], testDescs[testDesc]);
+  }
+}
+
+// Adds tests to test the interaction between a lock created by `createLock1`
+// and a lock created by `createLock2`.
+//
+// The description of each test is passed in through `testDescs`. If a test
+// description is omitted, it is not run.
+//
+// For all tests except `takeFileThenDir`, `createLock1` is called first.
+// `takeDirThenFile` and `takeFileThenDir` call `createLock1` on the directory
+// handle and `createLock2` on the file handle.
+function crossLockTests(createLock1, createLock2, testDescs) {
+  selectDirectoryTests(testDescs, {
+
+    // This tests that a lock can't be acquired on a file that already has a
+    // lock of another type.
+    sameFile: async (t, rootDir) => {
+      const [fileHandle] = await createFileHandles(rootDir, 'OPFS.test');
+
+      createLock1(t, fileHandle);
+      await promise_rejects_dom(
+          t, 'NoModificationAllowedError', createLock2(t, fileHandle));
+    },
+
+    // This tests that a lock on one file does not interfere with the creation
+    // of a lock on another file.
+    diffFile: async (t, rootDir) => {
+      const [fooFileHandle, barFileHandle] =
+          await createFileHandles(rootDir, 'foo.test', 'bar.test');
+
+      createLock1(t, fooFileHandle);
+      await createLock2(t, barFileHandle);
+    },
+
+    // This tests that after a lock has been acquired on a file and then closed,
+    // another lock of another type can be acquired. This will fail if
+    // `createLock1` and `createLock2` create the same shared lock.
+    acquireAfterClose: async (t, rootDir) => {
+      let [fileHandle] = await createFileHandles(rootDir, 'OPFS.test');
+
+      const lockPromise = createLock1(t, fileHandle);
+      await promise_rejects_dom(
+          t, 'NoModificationAllowedError', createLock2(t, fileHandle));
+      await closeLock(lockPromise);
+      // Recreate the file in case closing the lock moves/removes it.
+      [fileHandle] = await createFileHandles(rootDir, 'OPFS.test');
+      await createLock2(t, fileHandle);
+    },
+
+    // This tests that after multiple locks of some shared lock type have been
+    // acquired on a file and then all closed, another lock of anoteher lock
+    // type can be acquired.
+    multiAcquireAfterClose: async (t, rootDir) => {
+      let [fileHandle] = await createFileHandles(rootDir, 'OPFS.test');
+
+      const lock1 = await createLock1(t, fileHandle);
+      const lock2 = await createLock1(t, fileHandle);
+
+      await promise_rejects_dom(
+          t, 'NoModificationAllowedError', createLock2(t, fileHandle));
+      await lock1.close();
+      await promise_rejects_dom(
+          t, 'NoModificationAllowedError', createLock2(t, fileHandle));
+      await lock2.close();
+
+      await createLock2(t, fileHandle);
+    },
+
+    // This tests that a lock taken on a directory prevents a lock being
+    // acquired on a file contained within that directory.
+    takeDirThenFile: async (t, rootDir) => {
+      const dirHandle = await rootDir.getDirectoryHandle('foo', {create: true});
+      const [fileHandle] = await createFileHandles(dirHandle, 'OPFS.test');
+
+      createLock1(t, dirHandle);
+      await promise_rejects_dom(
+          t, 'NoModificationAllowedError', createLock2(t, fileHandle));
+    },
+
+    // This tests that a lock acquired on a file prevents a lock being acquired
+    // on an ancestor of that file.
+    takeFileThenDir: async (t, rootDir) => {
+      const grandparentHandle =
+          await rootDir.getDirectoryHandle('foo', {create: true});
+      const parentHandle =
+          await grandparentHandle.getDirectoryHandle('bar', {create: true});
+      const [fileHandle] = await createFileHandles(parentHandle, 'OPFS.test');
+
+      createLock2(t, fileHandle);
+      await promise_rejects_dom(
+          t, 'NoModificationAllowedError', createLock1(t, parentHandle));
+      await promise_rejects_dom(
+          t, 'NoModificationAllowedError', createLock1(t, grandparentHandle));
+    },
+  });
+}
