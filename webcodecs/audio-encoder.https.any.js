@@ -123,6 +123,51 @@ promise_test(async t => {
 }, 'Simple audio encoding');
 
 promise_test(async t => {
+  let outputs = 0;
+  let init = getDefaultCodecInit(t);
+  let firstOutput = new Promise(resolve => {
+    init.output = (chunk, metadata) => {
+      outputs++;
+      assert_equals(outputs, 1, 'outputs');
+      encoder.reset();
+      resolve();
+    };
+  });
+
+  let encoder = new AudioEncoder(init);
+  let config = {
+    codec: 'opus',
+    sampleRate: 48000,
+    numberOfChannels: 2,
+    bitrate: 256000  // 256kbit
+  };
+  encoder.configure(config);
+
+  let frame_count = 1024;
+  let frame1 = make_audio_data(
+      0, config.numberOfChannels, config.sampleRate, frame_count);
+  let frame2 = make_audio_data(
+      frame_count / config.sampleRate, config.numberOfChannels,
+      config.sampleRate, frame_count);
+  t.add_cleanup(() => {
+    frame1.close();
+    frame2.close();
+  });
+
+  encoder.encode(frame1);
+  encoder.encode(frame2);
+  const flushDone = encoder.flush();
+
+  // Wait for the first output, then reset.
+  await firstOutput;
+
+  // Flush should have been synchronously rejected.
+  await promise_rejects_dom(t, 'AbortError', flushDone);
+
+  assert_equals(outputs, 1, 'outputs');
+}, 'Test reset during flush');
+
+promise_test(async t => {
   let sample_rate = 48000;
   let total_duration_s = 1;
   let data_count = 10;
