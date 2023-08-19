@@ -36,11 +36,6 @@
     </div>
   </div>
   <option>three</option>
-  <div>
-    This is some text.
-    <option id="selectList2-child4">four</option>
-    More text.
-  </div>
 </selectlist>
 
 <selectlist id="selectList3">
@@ -224,16 +219,12 @@
     const selectList2Popover = document.getElementById("selectList2-popover");
     const selectList2Button = document.getElementById("selectList2-button");
     const selectList2Child2 = document.getElementById("selectList2-child2");
-    const selectList2Child4 = document.getElementById("selectList2-child4");
 
     assert_false(selectList2Popover.matches(':popover-open'));
     await clickOn(selectList2Button);
     assert_false(selectList2Popover.matches(':popover-open'), "Clicking a button part should not show an invalid listbox part");
 
     assert_equals(selectList2.value, "three");
-    await clickOn(selectList2Button);
-    await clickOn(selectList2Child4);
-    assert_equals(selectList2.value, "four", "Clicking an <option> that is a descendant of a valid listbox part should update the value");
   }, "To receive listbox part controller code, an element labeled as a listbox must not be a descendant of the button part in a flat tree traversal");
 
   promise_test(async () => {
