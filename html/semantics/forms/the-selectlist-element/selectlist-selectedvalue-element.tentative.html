@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<link rel=author href="mailto:jarhar@chromium.org">
+<link rel=help href="https://github.com/openui/open-ui/issues/702">
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+
+<selectlist>
+  <div>
+    <selectedvalue></selectedvalue>
+  </div>
+  <option>one</option>
+  <option>two</option>
+</selectlist>
+
+<script>
+test(() => {
+  const selectlist = document.querySelector('selectlist');
+  const selectedvalue = document.querySelector('selectedvalue');
+
+  assert_equals(selectlist.value, 'one', 'one should be selected initially.');
+  assert_equals(selectedvalue.textContent, 'one', "selectedvalue's initial text content should be one.");
+
+  selectlist.value = 'two';
+  assert_equals(selectlist.value, 'two', "assigning two into selectlists's value should work.");
+  assert_equals(selectedvalue.textContent, 'two', "selectedvalue's text content should be updated with the new value.");
+}, "<selectedvalue>'s text contents should be replaced with its ancestor <selectlist>'s selected value.");
+</script>
