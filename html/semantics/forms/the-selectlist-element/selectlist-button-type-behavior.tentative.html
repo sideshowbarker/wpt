@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<link rel=author href="mailto:jarhar@chromium.org">
+<link rel=help href="https://github.com/openui/open-ui/issues/702">
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="/resources/testdriver.js"></script>
+<script src="/resources/testdriver-actions.js"></script>
+<script src="/resources/testdriver-vendor.js"></script>
+
+<selectlist>
+  <button type=selectlist>hello world</button>
+  <option>option</option>
+</selectlist>
+
+<script>
+promise_test(async () => {
+  const selectlist = document.querySelector('selectlist');
+  const button = document.querySelector('button');
+  assert_false(selectlist.open, 'The selectlist should start closed.');
+  await test_driver.click(button);
+  assert_true(selectlist.open, 'The selectlist should get opened when the button is clicked.');
+}, '<button type=selectlist> should open the parent selectlist when clicked.');
+</script>
