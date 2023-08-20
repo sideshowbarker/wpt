@@ -207,10 +207,10 @@ promise_test(async test => {
 promise_test(async test => {
   const uuid = generateUuid(test);
   await joinInterestGroup(test, uuid,
-                          { biddingLogicUrl: createBiddingScriptUrl({bid: -2}),
+                          { biddingLogicURL: createBiddingScriptUrl({bid: -2}),
                             name: 'other interest group 1' });
   await joinInterestGroup(test, uuid,
-                          { biddingLogicUrl: createBiddingScriptUrl({bid: -1}),
+                          { biddingLogicURL: createBiddingScriptUrl({bid: -1}),
                             name: 'other interest group 2' });
   await runReportArgumentValidationTest(
     test,
@@ -225,13 +225,13 @@ promise_test(async test => {
 promise_test(async test => {
   const uuid = generateUuid(test);
   await joinInterestGroup(test, uuid,
-                          { biddingLogicUrl: createBiddingScriptUrl({bid: 2}),
+                          { biddingLogicURL: createBiddingScriptUrl({bid: 2}),
                             name: 'other interest group 1' });
   await joinInterestGroup(test, uuid,
-                          { biddingLogicUrl: createBiddingScriptUrl({bid: 5}),
+                          { biddingLogicURL: createBiddingScriptUrl({bid: 5}),
                             name: 'other interest group 2' });
   await joinInterestGroup(test, uuid,
-                          { biddingLogicUrl: createBiddingScriptUrl({bid: 2}),
+                          { biddingLogicURL: createBiddingScriptUrl({bid: 2}),
                             name: 'other interest group 3' });
   await runReportArgumentValidationTest(
     test,
@@ -266,7 +266,7 @@ promise_test(async test => {
 promise_test(async test => {
   const uuid = generateUuid(test);
   await joinInterestGroup(test, uuid,
-                          { biddingLogicUrl: createBiddingScriptUrl({bid: -1}),
+                          { biddingLogicURL: createBiddingScriptUrl({bid: -1}),
                             name: 'other interest group 2' });
   await runReportArgumentValidationTest(
     test,
@@ -280,7 +280,7 @@ promise_test(async test => {
 promise_test(async test => {
   const uuid = generateUuid(test);
   await joinInterestGroup(test, uuid,
-    { biddingLogicUrl: createBiddingScriptUrl({bid: 1}),
+    { biddingLogicURL: createBiddingScriptUrl({bid: 1}),
       name: 'other interest group 2' });
 await runReportArgumentValidationTest(
     test,

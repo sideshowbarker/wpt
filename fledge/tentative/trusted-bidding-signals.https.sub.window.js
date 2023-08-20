@@ -22,7 +22,7 @@
 // fields.
 async function runTrustedBiddingSignalsTest(
     test, generateBidCheck, interestGroupOverrides = {}) {
-  interestGroupOverrides.biddingLogicUrl =
+  interestGroupOverrides.biddingLogicURL =
       createBiddingScriptUrl({
           generateBid: `if (!(${generateBidCheck})) return false;` });
   await runBasicFledgeTestExpectingWinner(
@@ -36,7 +36,7 @@ async function runTrustedBiddingSignalsTest(
 async function runTrustedBiddingSignalsDataVersionTest(
     test, check, interestGroupOverrides = {}) {
   const uuid = generateUuid(test);
-  interestGroupOverrides.biddingLogicUrl =
+  interestGroupOverrides.biddingLogicURL =
       createBiddingScriptUrl({
           generateBid:
               `if (!(${check})) return false;`,

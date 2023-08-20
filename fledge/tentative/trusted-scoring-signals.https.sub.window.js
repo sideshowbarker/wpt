@@ -35,7 +35,7 @@ async function runTrustedScoringSignalsTest(test, uuid, renderURL, scoreAdCheck)
 async function runTrustedScoringSignalsDataVersionTest(
     test, uuid, renderURL, check) {
   const interestGroupOverrides = {
-      biddingLogicUrl :
+      biddingLogicURL :
           createBiddingScriptUrl({
               generateBid:
                   `if (browserSignals.dataVersion !== undefined)
