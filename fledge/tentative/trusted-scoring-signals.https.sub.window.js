@@ -17,7 +17,7 @@
 async function runTrustedScoringSignalsTest(test, uuid, renderURL, scoreAdCheck) {
   const auctionConfigOverrides = {
       trustedScoringSignalsUrl: TRUSTED_SCORING_SIGNALS_URL,
-      decisionLogicUrl:
+    decisionLogicURL:
           createDecisionScriptUrl(uuid, {
               scoreAd: `if (!(${scoreAdCheck})) throw "error";` })};
   await runBasicFledgeTestExpectingWinner(
@@ -49,7 +49,7 @@ async function runTrustedScoringSignalsDataVersionTest(
   await joinInterestGroup(test, uuid, interestGroupOverrides);
 
   const auctionConfigOverrides = {
-    decisionLogicUrl: createDecisionScriptUrl(
+    decisionLogicURL: createDecisionScriptUrl(
         uuid,
         { scoreAd:
               `if (!(${check})) return false;`,
@@ -85,7 +85,7 @@ promise_test(async test => {
   await runBasicFledgeTestExpectingWinner(
       test,
       { uuid: uuid,
-        auctionConfigOverrides: { decisionLogicUrl: decisionLogicScriptUrl }
+        auctionConfigOverrides: { decisionLogicURL: decisionLogicScriptUrl }
       });
 }, 'No trustedScoringSignalsUrl.');
 
@@ -268,7 +268,7 @@ promise_test(async test => {
   let auctionConfigOverrides = { trustedScoringSignalsUrl: TRUSTED_SCORING_SIGNALS_URL };
 
   // scoreAd() only accepts the first IG's bid, validating its trustedScoringSignals.
-  auctionConfigOverrides.decisionLogicUrl =
+  auctionConfigOverrides.decisionLogicURL =
         createDecisionScriptUrl(uuid, {
             scoreAd: `if (browserSignals.renderURL === "${renderURL1}" &&
                           trustedScoringSignals.renderURL["${renderURL1}"] !== 1 ||
@@ -280,7 +280,7 @@ promise_test(async test => {
       `Wrong value type returned from first auction: ${config.constructor.type}`);
 
   // scoreAd() only accepts the second IG's bid, validating its trustedScoringSignals.
-  auctionConfigOverrides.decisionLogicUrl =
+  auctionConfigOverrides.decisionLogicURL =
         createDecisionScriptUrl(uuid, {
             scoreAd: `if (browserSignals.renderURL === "${renderURL2}" &&
                           trustedScoringSignals.renderURL["${renderURL1}"] !== undefined ||

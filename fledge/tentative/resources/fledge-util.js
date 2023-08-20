@@ -223,7 +223,7 @@ async function leaveInterestGroup(interestGroupOverrides = {}) {
 async function runBasicFledgeAuction(test, uuid, auctionConfigOverrides = {}) {
   let auctionConfig = {
     seller: window.location.origin,
-    decisionLogicUrl: createDecisionScriptUrl(
+    decisionLogicURL: createDecisionScriptUrl(
         uuid,
         { reportResult: `sendReportTo('${createSellerReportUrl(uuid)}');` }),
     interestGroupBuyers: [window.location.origin],
@@ -354,7 +354,8 @@ async function runReportTest(test, uuid, codeToInsert, expectedReportUrls,
   await joinInterestGroup(test, uuid, interestGroupOverrides);
   await runBasicFledgeAuctionAndNavigate(
       test, uuid,
-      { decisionLogicUrl: createDecisionScriptUrl(
+    {
+      decisionLogicURL: createDecisionScriptUrl(
                               uuid, decisionScriptUrlParams) });
   await waitForObservedRequests(uuid, expectedReportUrls);
 }

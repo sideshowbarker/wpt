@@ -48,7 +48,7 @@ async function runTrustedBiddingSignalsDataVersionTest(
   await joinInterestGroup(test, uuid, interestGroupOverrides);
 
   const auctionConfigOverrides = {
-    decisionLogicUrl: createDecisionScriptUrl(
+    decisionLogicURL: createDecisionScriptUrl(
         uuid,
         { scoreAd:
               `if (browserSignals.dataVersion !== undefined)

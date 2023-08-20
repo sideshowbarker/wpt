@@ -191,7 +191,8 @@ async function runReportTest(test, uuid, codeToInsert, expectedNumReports = 0) {
   await joinInterestGroup(test, uuid, interestGroupOverrides);
   await runBasicFledgeAuctionAndNavigate(
       test, uuid,
-      { decisionLogicUrl: createDecisionScriptUrl(
+    {
+      decisionLogicURL: createDecisionScriptUrl(
         uuid, { scoreAd, reportResult })
     });
 
