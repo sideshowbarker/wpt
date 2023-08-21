@@ -8,6 +8,7 @@ partial interface MediaDevices {
 };
 
 enum CaptureStartFocusBehavior {
+  "focus-capturing-application",
   "focus-captured-surface",
   "no-focus-change"
 };
